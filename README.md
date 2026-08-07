@@ -27,30 +27,30 @@ Our system utilizes a highly optimized Edge-to-Cloud pipeline to minimize latenc
 
 ```mermaid
 graph TD
-    subgraph Edge Layer [🚗 Edge AI Node (Car A)]
-        Cam[Dashcam 30 FPS] --> YOLO[YOLOv8n Inference]
-        YOLO -->|Severity Classification| Cooldown[Temporal Cooldown Logic]
-        Cooldown -->|Sub-200-Byte JSON Payload| Net[Cellular Network]
+    subgraph EdgeLayer ["🚗 Edge AI Node (Car A)"]
+        Cam["Dashcam 30 FPS"] --> YOLO["YOLOv8n Inference"]
+        YOLO -->|"Severity Classification"| Cooldown["Temporal Cooldown Logic"]
+        Cooldown -->|"Sub-200-Byte JSON Payload"| Net["Cellular Network"]
     end
 
-    subgraph Cloud Layer [☁️ FastAPI Backend]
-        Net --> API[POST /api/v1/hazards/detect]
-        API --> NMS[Spatio-Temporal NMS Deduplication]
-        NMS --> DB[(Firebase Firestore)]
-        DB -->|Real-time WebSockets| Geo[Haversine Geofence Engine]
+    subgraph CloudLayer ["☁️ FastAPI Backend"]
+        Net --> API["POST /api/v1/hazards/detect"]
+        API --> NMS["Spatio-Temporal NMS Deduplication"]
+        NMS --> DB[("Firebase Firestore")]
+        DB -->|"Real-time WebSockets"| Geo["Haversine Geofence Engine"]
     end
 
-    subgraph Client Layer [📱 Trailing Vehicles (Cars B & C)]
-        Geo -->|500m Radius Match| App1[Flutter Dashboard]
-        Geo -->|500m Radius Match| App2[Pyttsx3 TTS Audio Warning]
-        App1 --> Verify[Crowd Consensus Auto-Verification]
+    subgraph ClientLayer ["📱 Trailing Vehicles (Cars B & C)"]
+        Geo -->|"500m Radius Match"| App1["Flutter Dashboard"]
+        Geo -->|"500m Radius Match"| App2["Pyttsx3 TTS Audio Warning"]
+        App1 --> Verify["Crowd Consensus Auto-Verification"]
         App2 --> Verify
-        Verify -.->|Update Confidence Score| DB
+        Verify -.->|"Update Confidence Score"| DB
     end
     
-    style Edge Layer fill:#f9f9f9,stroke:#333,stroke-width:2px
-    style Cloud Layer fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
-    style Client Layer fill:#f1f8e9,stroke:#558b2f,stroke-width:2px
+    style EdgeLayer fill:#f9f9f9,stroke:#333,stroke-width:2px
+    style CloudLayer fill:#e1f5fe,stroke:#0277bd,stroke-width:2px
+    style ClientLayer fill:#f1f8e9,stroke:#558b2f,stroke-width:2px
 ```
 
 ---
