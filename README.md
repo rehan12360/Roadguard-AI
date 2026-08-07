@@ -1,7 +1,22 @@
-# 🛡️ RoadGuard AI
-### A Decentralized, Crowd-Powered Edge-to-Cloud Autonomous Road Hazard Intelligence Network
+<div align="center">
 
-> **One Vehicle Detects. Every Vehicle Benefits.**
+# 🛡️ RoadGuard AI
+
+<a href="https://github.com/rehan12360/Roadguard-AI">
+  <img src="https://readme-typing-svg.demolab.com?font=Orbitron&weight=700&size=28&pause=1500&color=00B4D8&center=true&vCenter=true&width=800&lines=Autonomous+Road+Hazard+Intelligence;Decentralized+Edge-to-Cloud+Network;One+Vehicle+Detects.+Every+Vehicle+Benefits." alt="Typing SVG" />
+</a>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" alt="Flutter"/>
+  <img src="https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI"/>
+  <img src="https://img.shields.io/badge/YOLOv8-FF4B4B?style=for-the-badge&logo=pytorch&logoColor=white" alt="YOLOv8"/>
+  <img src="https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black" alt="Firebase"/>
+  <img src="https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Python"/>
+</p>
+
+> **Transforming every ordinary vehicle into an autonomous road safety sentinel.**
+
+</div>
 
 ---
 
