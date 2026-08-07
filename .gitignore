@@ -1,0 +1,34 @@
+# Environments
+env/
+venv/
+env_cloud/
+env_prototype/
+.env
+*-key.json
+firebase-key.json
+__pycache__/
+*.pyc
+
+# IDEs
+.vscode/
+.idea/
+
+# Large files / ML models
+*.npy
+*.onnx
+*.h5
+*.pb
+
+# Flutter
+.dart_tool/
+build/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+.pub-cache/
+.pub/
+*.log
+
+# OS
+.DS_Store
+Thumbs.db

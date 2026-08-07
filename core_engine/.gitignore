@@ -1,0 +1,14 @@
+# Ignore virtual environments
+env_prototype/
+core_engine/env_prototype/
+
+# Ignore Python compiled files
+__pycache__/
+*.pyc
+
+# Ignore common IDE/System files
+.vscode/
+.DS_Store
+
+# Ignore your AI model file if it is very large (optional)
+# best.pt
