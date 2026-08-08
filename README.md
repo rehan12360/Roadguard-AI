@@ -80,6 +80,17 @@ We evaluated the YOLOv8 Nano edge model on a continuous stream of dashcam footag
 
 *Note: Real-world GPS drift is mitigated by our Spatio-Temporal NMS clustering with a 20m radial tolerance.*
 
+
+## 🏆 Hackathon Bounties Addressed
+
+We successfully integrated several advanced features targeting specific hackathon bounties:
+
+- **Bounty: Supabase Realtime Integration**
+  Migrated our entire cloud infrastructure to **Supabase**! We leverage Supabase's robust PostgreSQL database and Row Level Security (RLS) to securely handle thousands of concurrent JSON hazard payloads from edge nodes, ensuring sub-second real-time sync across the vehicular swarm.
+
+- **Bounty: PDF Project-Specific Report Export**
+  Implemented a dedicated `pdf_export_service.dart` module. This allows city municipalities and road maintenance crews to export verified, high-severity road hazards directly into a formatted PDF report with exact GPS coordinates and crowd-consensus confidence scores for immediate action.
+
 ## 🏗️ System Architecture
 
 **Why this architecture?**
