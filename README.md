@@ -117,6 +117,14 @@ cd Roadguard-AI
 
 ---
 
+
+## ⚠️ Prototype Deployment Limitations
+Why is this currently deployed locally (Laptop + Phone over LAN) instead of a global cloud server like AWS/GCP?
+
+1. **Edge-Simulation Constraint:** In our final production vision, the YOLOv8 model runs natively on the vehicle's dashcam hardware via TensorRT/TFLite. For this hackathon prototype, the laptop acts as a "Simulated Edge Node" running the heavy Python `vision.py` inference engine.
+2. **Bandwidth & Latency:** If we deployed the FastAPI Python backend to a remote cloud server right now, we would have to stream live 30 FPS video over a 4G/5G cellular network for inference. This would cause massive latency, battery drain, and defeat the entire purpose of "Edge AI."
+3. **LAN Requirement:** By running the backend on a local laptop and binding to `0.0.0.0`, the phone and laptop communicate instantly over the local Wi-Fi network with zero cellular latency, perfectly simulating how the final edge-native hardware will feel.
+
 ## 🔮 Future Scope
 - **Live GPS Integration:** Replace the demo simulator with native `geolocator` plugin streams.
 - **Hardware Deployment:** Export the model to TensorRT for deployment on dedicated dashcam hardware.
