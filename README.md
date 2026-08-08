@@ -27,10 +27,10 @@ Instead of waiting for municipal inspections or manual reporting, RoadGuard leve
 
 **Live Edge AI Detection (Car A)**
 *(Simulated via YOLOv8 on laptop bridging to Flutter)*
-![Detection Placeholder](assets/detection.png)
+![Detection](assets/detection.jpg)
 
 **Real-Time Geofenced Alerting (Car B)**
-![Alert Placeholder](assets/alert.png)
+![Alert Dashboard](assets/alert.png)
 
 ---
 
@@ -96,9 +96,13 @@ We successfully integrated several advanced features targeting specific hackatho
 **Why this architecture?**
 We chose *Edge Inference* over *Cloud Streaming* because streaming 4K dashboard video to a cloud server over cellular data induces massive latency and bandwidth costs. By running YOLOv8 at the edge, we only send 150-byte JSON payloads to the cloud, allowing the system to scale to millions of vehicles effortlessly.
 
+
 ```
 Vehicle Camera -> YOLO Edge -> JSON Bbox -> FastAPI -> Supabase -> Haversine Radial Check -> Trailing Vehicles
 ```
+
+![System Architecture](assets/architecture.png)
+
 
 ---
 
