@@ -4,13 +4,13 @@ import 'package:flutter/material.dart';
 import '../models/hazard.dart';
 import '../models/vehicle.dart';
 import '../services/api_service.dart';
-import '../services/firestore_service.dart';
+import '../services/database_service.dart';
 import '../services/voice_service.dart';
 import '../widgets/video_box_painter.dart';
 
 class DemoProvider extends ChangeNotifier {
   final ApiService _apiService = ApiService();
-  final FirestoreService _firestoreService = FirestoreService();
+  final DatabaseService _databaseService = DatabaseService();
   final VoiceService _voiceService = VoiceService();
 
   VehiclePreset _selectedVehicle = VehiclePreset.defaultPresets[0]; // Default: Car A
@@ -67,12 +67,12 @@ class DemoProvider extends ChangeNotifier {
 
   void _initServices() {
     _voiceService.init();
-    _listenToFirestoreHazards();
+    _listenToDatabaseHazards();
   }
 
-  void _listenToFirestoreHazards() {
+  void _listenToDatabaseHazards() {
     _hazardSubscription?.cancel();
-    _hazardSubscription = _firestoreService.activeHazardsStream().listen((list) {
+    _hazardSubscription = _databaseService.activeHazardsStream().listen((list) {
       if (list.isNotEmpty) {
         _hazards = list;
         _evaluateGeofenceAlerts();
@@ -80,18 +80,7 @@ class DemoProvider extends ChangeNotifier {
       }
     });
 
-    _apiPollingTimer?.cancel();
-    _apiPollingTimer = Timer.periodic(const Duration(seconds: 3), (_) => _pollApiHazards());
-  }
-
-  Future<void> _pollApiHazards() async {
-    final list = await _apiService.getAllHazards();
-    if (list != null) {
-      final newHazards = list.map((data) => Hazard.fromFirestore(data, data['id'] ?? data['hazard_id'] ?? '')).toList();
-      _hazards = newHazards;
-      _evaluateGeofenceAlerts();
-      notifyListeners();
-    }
+    // Legacy API polling removed, now fully using Supabase real-time stream.
   }
 
   void selectVehicle(VehiclePreset preset) {
@@ -313,7 +302,7 @@ class DemoProvider extends ChangeNotifier {
 
     for (var hazard in activeHazards) {
       await _apiService.verifyHazard(hazard.hazardId);
-      _firestoreService.markVerified(hazard.hazardId);
+      _databaseService.markVerified(hazard.hazardId);
     }
 
     _voiceService.speak('${activeHazards.length} hazards verified. Updating road status.');

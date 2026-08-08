@@ -13,6 +13,7 @@ class Hazard {
   final int verifications;
   final String source; // "ai_detection" | "manual"
   final DateTime timestamp;
+  final String? attachmentUrl;
 
   Hazard({
     required this.hazardId,
@@ -27,9 +28,10 @@ class Hazard {
     required this.verifications,
     required this.source,
     required this.timestamp,
+    this.attachmentUrl,
   });
 
-  factory Hazard.fromFirestore(Map<String, dynamic> data, String docId) {
+  factory Hazard.fromMap(Map<String, dynamic> data, String docId) {
     return Hazard(
       hazardId: data['hazard_id'] ?? docId,
       vehicleId: data['vehicle_id'] ?? 'unknown',
@@ -43,6 +45,7 @@ class Hazard {
       verifications: data['verifications'] ?? 1,
       source: data['source'] ?? 'ai_detection',
       timestamp: DateTime.tryParse(data['timestamp'] ?? '') ?? DateTime.now(),
+      attachmentUrl: data['attachment_url'],
     );
   }
 

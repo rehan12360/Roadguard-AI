@@ -3,6 +3,7 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../models/vehicle.dart';
 import '../providers/demo_provider.dart';
+import 'hazard_detail_sheet.dart';
 
 class MultiCarMapScreen extends StatefulWidget {
   const MultiCarMapScreen({super.key});
@@ -57,10 +58,14 @@ class _MultiCarMapScreenState extends State<MultiCarMapScreen> {
           markerId: MarkerId(h.hazardId),
           position: LatLng(h.latitude, h.longitude),
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueViolet),
-          infoWindow: InfoWindow(
-            title: '🚨 ${h.hazardType.toUpperCase()}',
-            snippet: '${(h.confidence * 100).round()}% confidence · Lane: ${h.lane.toUpperCase()}',
-          ),
+          onTap: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              backgroundColor: Colors.transparent,
+              builder: (_) => HazardDetailSheet(hazard: h),
+            );
+          },
         ),
       );
     }

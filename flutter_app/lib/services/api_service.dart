@@ -5,9 +5,9 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 
 /// Handles writes that go through the FastAPI backend rather than
 /// straight to Firestore — currently just manual hazard reporting.
-/// Reads are handled separately by FirestoreService's live listener.
+/// Reads are handled separately by DatabaseService's live listener.
 class ApiService {
-  static const String baseUrl = 'http://10.215.82.250:8000';
+  static const String baseUrl = 'http://10.215.82.27:8000';
 
   Future<String?> reportHazardManually({
     required String vehicleId,

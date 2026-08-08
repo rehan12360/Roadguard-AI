@@ -42,12 +42,15 @@ def get_yolo_model():
     return _yolo_model
 
 
-# ── Firebase Init ──────────────────────────────────────────
-print("Connecting to Firebase...")
-cred = credentials.Certificate("firebase-key.json")
-firebase_admin.initialize_app(cred)
-db = firestore.client()
-print("Firebase connected successfully!")
+import os
+from supabase import create_client, Client
+
+SUPABASE_URL = "https://ipnuxbyyphzqayguosia.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwbnV4Ynl5cGh6cWF5Z3Vvc2lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMzkxNjIsImV4cCI6MjEwMTcxNTE2Mn0.Z4XaIeCDxQUXWeHO19yzZKhYzyAQJaA2Z2w7KEhh_Zc"
+
+print("Connecting to Supabase...")
+db = create_client(SUPABASE_URL, SUPABASE_KEY)
+print("Supabase connected successfully!")
 
 app = FastAPI(title="RoadGuard Cloud Backend", version="2.0.0")
 
@@ -127,7 +130,7 @@ async def receive_hazard(payload: HazardDetectPayload):
 
     try:
         # Prevent spamming multiple hazards for the same pothole if camera is held still
-        existing_docs = list(db.collection(COLLECTION).where("status", "==", "active").stream())
+        existing_docs = list(db.table(COLLECTION).select("*").eq("status", "active").execute().data)
         for doc in existing_docs:
             h = doc.to_dict()
             if h.get("hazard_type") == payload.hazard_type:
@@ -143,7 +146,7 @@ async def receive_hazard(payload: HazardDetectPayload):
                     print(f"\n✅ AI HAZARD MERGED: {payload.hazard_type.upper()} -> {doc.id}")
                     return {"status": "success", "hazard_id": doc.id, "merged": True}
 
-        db.collection(COLLECTION).document(hazard_id).set(doc_data)
+        db.table(COLLECTION).insert(doc_data).execute()
         print(f"\n✅ AI HAZARD LOGGED: {payload.hazard_type.upper()}")
         print(f"   Location : {payload.latitude}, {payload.longitude}")
         print(f"   Lane     : {payload.lane}")
@@ -170,7 +173,7 @@ async def report_hazard_manual(payload: HazardReportPayload):
     })
 
     try:
-        db.collection(COLLECTION).document(hazard_id).set(doc_data)
+        db.table(COLLECTION).insert(doc_data).execute()
         print(f"\n📍 MANUAL HAZARD LOGGED: {payload.hazard_type.upper()}")
         print(f"   Reported by: {payload.vehicle_id}")
         print(f"   Location   : {payload.latitude}, {payload.longitude}")
@@ -187,7 +190,7 @@ async def report_hazard_manual(payload: HazardReportPayload):
 async def get_alerts(vehicle_id: str, lat: float, lon: float):
     print(f"\n📡 {vehicle_id.upper()} polling for alerts...")
     try:
-        hazards_ref = db.collection(COLLECTION).where("status", "==", "active").stream()
+        hazards_ref = db.table(COLLECTION).select("*").eq("status", "active").execute().data
 
         nearby_alerts = []
         for doc in hazards_ref:
@@ -296,39 +299,49 @@ async def process_image(
 
         # If any hazard detected, log it (allow low confidence to be verified later)
         if best_hazard and best_hazard["conf"] > 0.10:
-            existing_docs = list(db.collection(COLLECTION).where("status", "==", "active").stream())
+            existing_docs = list(db.table(COLLECTION).select("*").eq("status", "active").execute().data)
             matched_id = None
             
             for doc in existing_docs:
-                h = doc.to_dict()
+                h = doc
                 if calculate_distance(latitude, longitude, h.get("latitude", 0), h.get("longitude", 0)) <= 20:
-                    matched_id = doc.id
+                    matched_id = h.get("hazard_id")
                     current_conf = h.get("confidence", 0.6)
                     break
                     
             if matched_id:
                 new_conf = min(0.99, current_conf + 0.05)
-                db.collection(COLLECTION).document(matched_id).update({
-                    "verifications": firestore.Increment(1),
-                    "confidence": round(new_conf, 2)
-                })
+                # fetch current verifications
+                # for now just bump it in Supabase
+                try:
+                    res = db.table(COLLECTION).select("verifications").eq("hazard_id", matched_id).execute()
+                    current_verifs = res.data[0].get("verifications", 1) if res.data else 1
+                    db.table(COLLECTION).update({
+                        "verifications": current_verifs + 1,
+                        "confidence": round(new_conf, 2)
+                    }).eq("hazard_id", matched_id).execute()
+                except Exception as e:
+                    print("Error updating Supabase:", e)
             else:
                 hazard_id = new_hazard_id()
-                db.collection(COLLECTION).document(hazard_id).set({
-                    "vehicle_id": vehicle_id,
-                    "hazard_type": best_hazard["type"],
-                    "confidence": round(best_hazard["conf"], 2),
-                    "latitude": latitude,
-                    "longitude": longitude,
-                    "lane": "center",
-                    "severity": "high" if best_hazard["conf"] > 0.80 else "medium",
-                    "timestamp": utc_now_iso(),
-                    "status": "active",
-                    "verifications": 1,
-                    "hazard_id": hazard_id,
-                    "source": "hybrid_edge_ai",
-                    "created_at": utc_now_iso(),
-                })
+                try:
+                    db.table(COLLECTION).insert({
+                        "vehicle_id": vehicle_id,
+                        "hazard_type": best_hazard["type"],
+                        "confidence": round(best_hazard["conf"], 2),
+                        "latitude": latitude,
+                        "longitude": longitude,
+                        "lane": "center",
+                        "severity": "high" if best_hazard["conf"] > 0.80 else "medium",
+                        "timestamp": utc_now_iso(),
+                        "status": "active",
+                        "verifications": 1,
+                        "hazard_id": hazard_id,
+                        "source": "hybrid_edge_ai",
+                        "created_at": utc_now_iso(),
+                    }).execute()
+                except Exception as e:
+                    print("Error inserting to Supabase:", e)
 
         return {
             "status": "success",
@@ -472,7 +485,7 @@ async def process_video(
         # If we log 3 hazards at the exact same lat/lon, they will overlap entirely on the map.
         offset_step = 0.00015 # approx 15 meters
         
-        existing_hazards_docs = list(db.collection(COLLECTION).where("status", "==", "active").stream())
+        existing_hazards_docs = list(db.table(COLLECTION).select("*").eq("status", "active").execute().data)
         
         for idx, d in enumerate(detections):
             d_lat = latitude + (idx * offset_step)
@@ -519,8 +532,8 @@ async def process_video(
                     "source": "video_ai_detection",
                     "created_at": utc_now_iso(),
                 }
-                db.collection(COLLECTION).document(hazard_id).set(doc_data)
-                existing_hazards_docs.append(db.collection(COLLECTION).document(hazard_id).get()) # prevent immediate self-merging
+                db.table(COLLECTION).insert(doc_data).execute()
+                existing_hazards_docs.append(db.table(COLLECTION).select("*").eq("hazard_id", hazard_id).execute()) # prevent immediate self-merging
                 created_hazards_list.append({
                     "id": hazard_id,
                     "type": d["label"],
@@ -628,7 +641,7 @@ async def clear_all():
 # Returns all active hazards (for map dashboard / debugging)
 @app.get("/api/v1/hazards")
 async def get_all_hazards():
-    docs = db.collection(COLLECTION).where("status", "==", "active").stream()
+    docs = db.table(COLLECTION).select("*").eq("status", "active").execute().data
     return {"hazards": [doc.to_dict() for doc in docs]}
 
 

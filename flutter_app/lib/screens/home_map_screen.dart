@@ -5,10 +5,11 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 
 import '../models/hazard.dart';
-import '../services/firestore_service.dart';
+import '../services/database_service.dart';
 import '../services/api_service.dart';
 import '../services/voice_service.dart';
 import '../widgets/alert_popup.dart';
+import 'hazard_detail_sheet.dart';
 
 const double kAlertRadiusMeters = 500;
 
@@ -21,7 +22,7 @@ class HomeMapScreen extends StatefulWidget {
 }
 
 class _HomeMapScreenState extends State<HomeMapScreen> {
-  final _firestoreService = FirestoreService();
+  final _databaseService = DatabaseService();
   final _apiService = ApiService();
   final _voiceService = VoiceService();
 
@@ -65,7 +66,7 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
   }
 
   void _listenToHazards() {
-    _hazardSub = _firestoreService.activeHazardsStream().listen((hazards) {
+    _hazardSub = _databaseService.activeHazardsStream().listen((hazards) {
       setState(() => _allHazards = hazards);
       _checkForNearbyHazards();
     });
@@ -172,11 +173,14 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
         icon: BitmapDescriptor.defaultMarkerWithHue(
           h.isCritical ? BitmapDescriptor.hueRed : BitmapDescriptor.hueOrange,
         ),
-        infoWindow: InfoWindow(
-          title: h.hazardType.toUpperCase(),
-          snippet:
-              '${(h.confidence * 100).round()}% confidence · ${h.source == 'manual' ? 'Reported by driver' : 'AI detected'}',
-        ),
+        onTap: () {
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            backgroundColor: Colors.transparent,
+            builder: (_) => HazardDetailSheet(hazard: h),
+          );
+        },
       );
     }).toSet();
   }
@@ -220,7 +224,7 @@ class _HomeMapScreenState extends State<HomeMapScreen> {
                 distanceMeters: _activeAlertDistance,
                 onDismiss: () => setState(() => _activeAlert = null),
                 onVerify: () {
-                  _firestoreService.markVerified(_activeAlert!.hazardId);
+                  _databaseService.markVerified(_activeAlert!.hazardId);
                   setState(() => _activeAlert = null);
                 },
               ),

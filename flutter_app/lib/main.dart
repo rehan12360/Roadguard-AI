@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/demo_provider.dart';
@@ -10,9 +10,12 @@ import 'screens/stats_dashboard_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   try {
-    await Firebase.initializeApp();
+    await Supabase.initialize(
+      url: 'https://ipnuxbyyphzqayguosia.supabase.co',
+      anonKey: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlwbnV4Ynl5cGh6cWF5Z3Vvc2lhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxMzkxNjIsImV4cCI6MjEwMTcxNTE2Mn0.Z4XaIeCDxQUXWeHO19yzZKhYzyAQJaA2Z2w7KEhh_Zc',
+    );
   } catch (e) {
-    print('Firebase init warning (proceeding in local mode if unconfigured): $e');
+    print('Supabase init warning: $e');
   }
 
   runApp(

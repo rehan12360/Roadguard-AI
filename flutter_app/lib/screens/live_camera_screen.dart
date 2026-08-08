@@ -4,7 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import '../services/api_service.dart';
-import '../services/firestore_service.dart';
+import '../services/database_service.dart';
 import '../services/voice_service.dart';
 import '../providers/demo_provider.dart';
 import '../models/vehicle.dart';
@@ -22,7 +22,7 @@ class LiveCameraScreen extends StatefulWidget {
 class _LiveCameraScreenState extends State<LiveCameraScreen> {
   CameraController? _cameraController;
   final ApiService _apiService = ApiService();
-  final FirestoreService _firestoreService = FirestoreService();
+  final DatabaseService _databaseService = DatabaseService();
   final VoiceService _voiceService = VoiceService();
   bool _isProcessing = false;
   List<DetectedHazard> _currentHazards = [];

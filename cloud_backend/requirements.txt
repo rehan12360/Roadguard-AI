@@ -1,6 +1,6 @@
 fastapi
 uvicorn
-firebase-admin
+supabase
 python-dotenv
 pydantic
 opencv-python
