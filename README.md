@@ -34,6 +34,23 @@ Instead of waiting for municipal inspections or manual reporting, RoadGuard leve
 
 ---
 
+
+### 📸 Hackathon Demonstration UIs
+We built a comprehensive Pitch Hub allowing judges to simulate the entire Edge-to-Cloud architecture across multiple vehicles and stakeholder views.
+
+<p align="center">
+  <img src="assets/pitch_hub.jpg" width="30%" />
+  <img src="assets/municipality_dashboard.jpg" width="30%" />
+  <img src="assets/pitch_analytics.jpg" width="30%" />
+</p>
+
+- **Pitch Hub (Left):** Select the POV of Car A (Detector), Car B (Trailing vehicle 250m behind), or the Command Center.
+- **Municipality Dashboard (Center):** Secure portal for city councils to view hazard heatmaps and export automated PDF reports.
+- **Pitch Analytics (Right):** Live-updating network performance metrics demonstrating sub-second V2V (Vehicle-to-Vehicle) alert latency via our cloud engine.
+
+### 📄 Automated Smart Reports
+[View Sample Generated PDF Report (Bounty Implementation)](assets/sample_report.pdf)
+
 ## ✨ Key Features
 
 | Feature | Status | Implementation |
